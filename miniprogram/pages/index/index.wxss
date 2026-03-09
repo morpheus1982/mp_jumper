@@ -1,0 +1,70 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30rpx;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid #e0e0e0;
+  border-top-color: #07c160;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 32rpx;
+  color: #666;
+}
+
+/* 错误状态 */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30rpx;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 100rpx;
+}
+
+.error-text {
+  font-size: 32rpx;
+  color: #666;
+  max-width: 80%;
+}
+
+.retry-btn {
+  margin-top: 20rpx;
+  background-color: #07c160;
+  color: #fff;
+  font-size: 32rpx;
+  padding: 20rpx 60rpx;
+  border-radius: 8rpx;
+  border: none;
+}
+
+.retry-btn::after {
+  border: none;
+}

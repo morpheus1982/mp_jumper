@@ -1,0 +1,14 @@
+<view class="container">
+  <!-- 加载中状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在跳转...</text>
+  </view>
+
+  <!-- 错误状态 -->
+  <view wx:if="{{error}}" class="error-container">
+    <view class="error-icon">❌</view>
+    <text class="error-text">{{errorMessage}}</text>
+    <button class="retry-btn" bindtap="onRetry" wx:if="{{targetUrl}}">重试</button>
+  </view>
+</view>
