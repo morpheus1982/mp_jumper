@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ssh 512:*)",
+      "Bash(scp:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}

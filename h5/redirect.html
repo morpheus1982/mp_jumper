@@ -540,30 +540,64 @@
       }
 
       /**
+       * Base64 decode (supports UTF-8)
+       */
+      function decodeBase64(input) {
+        try {
+          // Try native atob first
+          const decoded = decodeURIComponent(escape(atob(input)))
+          return decoded
+        } catch (err) {
+          // If atob fails, input might not be base64 encoded
+          return input
+        }
+      }
+
+      /**
+       * Check if string is valid URL
+       */
+      function isValidUrl(str) {
+        try {
+          new URL(str)
+          return str.startsWith('http://') || str.startsWith('https://')
+        } catch (err) {
+          return false
+        }
+      }
+
+      /**
        * Main function
        */
       async function main() {
         // 1. Get target URL
-        const targetUrl = getUrlParam('t')
+        let targetUrl = getUrlParam('t')
 
         if (!targetUrl) {
           showError('缺少目标链接参数')
           return
         }
 
+        // 2. Try Base64 decode if not already a valid URL
+        if (!isValidUrl(targetUrl)) {
+          const decoded = decodeBase64(targetUrl)
+          if (isValidUrl(decoded)) {
+            targetUrl = decoded
+          }
+        }
+
         console.log('Target URL:', targetUrl)
 
-        // 2. Load whitelist
+        // 3. Load whitelist
         const whitelist = await loadWhitelist()
         console.log('Whitelist:', whitelist)
 
-        // 3. Validate domain
+        // 4. Validate domain
         if (!isDomainAllowed(targetUrl, whitelist)) {
           showError('链接不在允许范围内')
           return
         }
 
-        // 4. Attempt auto-redirect
+        // 5. Attempt auto-redirect
         tryAutoJump(targetUrl)
       }
 
