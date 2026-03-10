@@ -1,0 +1,28 @@
+# HTTP 测试端口
+:60080 {
+        root * /opt/docker/mp_jumper/html
+        file_server browse
+        encode gzip
+
+        log {
+                output stdout
+                format console
+        }
+}
+
+# HTTPS 生产端口 - 自动 SSL (阿里云 DNS-01 验证)
+www.512028.xyz {
+        root * /opt/docker/mp_jumper/html
+        file_server browse
+        encode gzip
+
+        # 自动 SSL 证书 - 阿里云 DNS 验证
+        tls {
+                dns alidns {$ALICLOUD_ACCESS_KEY} {$ALICLOUD_SECRET_KEY}
+        }
+
+        log {
+                output stdout
+                format console
+        }
+}

@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: caddy-alidns:latest
+    container_name: mp_jumper_caddy
+    restart: unless-stopped
+    ports:
+      - "60080:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./html:/opt/docker/mp_jumper/html:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - ALICLOUD_ACCESS_KEY=${ALICLOUD_ACCESS_KEY}
+      - ALICLOUD_SECRET_KEY=${ALICLOUD_SECRET_KEY}
+    networks:
+      - mp_jumper_net
+
+networks:
+  mp_jumper_net:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

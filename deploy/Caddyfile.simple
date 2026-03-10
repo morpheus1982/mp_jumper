@@ -1,0 +1,27 @@
+# HTTP 测试端口
+:60080 {
+        root * /opt/docker/mp_jumper/html
+        file_server browse
+        encode gzip
+
+        log {
+                output stdout
+                format console
+        }
+}
+
+# HTTPS 生产端口 - 自动 SSL (HTTP-01 验证)
+# 需要 DNS 已解析到本服务器，且 80/443 端口可从公网访问
+www.512028.xyz {
+        root * /opt/docker/mp_jumper/html
+        file_server browse
+        encode gzip
+
+        # 自动 Let's Encrypt SSL 证书 (HTTP-01 验证)
+        # tls admin@example.com  # 可选：指定邮箱接收证书通知
+
+        log {
+                output stdout
+                format console
+        }
+}
