@@ -1,96 +1,149 @@
-const Base64 = require('../../utils/base64')
+const api = require('../../utils/api')
 
 Page({
   data: {
-    loading: true,
-    error: false,
-    errorMessage: '',
-    targetUrl: ''
+    state: 'loading',      // loading | preview | empty | exists | result | error
+    articleUrl: '',
+    articleTitle: '',
+    result: null,
+    errorMessage: ''
   },
 
-  onLoad(options) {
-    this.processScene(options)
+  onLoad() {
+    // 页面加载时不处理，等 onShow
+  },
+
+  onShow() {
+    this.autoReadClipboard()
   },
 
   /**
-   * 处理 scene 参数
+   * 自动读取剪贴板
    */
-  processScene(options) {
-    try {
-      // 1. 获取 scene 参数
-      let scene = options.scene || ''
+  autoReadClipboard() {
+    this.setData({ state: 'loading' })
 
-      // 处理二维码扫码进入的情况（需要 decodeURIComponent）
-      if (scene) {
-        scene = decodeURIComponent(scene)
-      }
-
-      // 2. 如果没有 scene，显示错误
-      if (!scene) {
-        this.showError('缺少链接参数')
-        return
-      }
-
-      // 3. Base64 解码
-      const targetUrl = Base64.decode(scene)
-
-      console.log('解码后的目标链接:', targetUrl)
-
-      // 4. 校验链接格式
-      if (!this.isValidUrl(targetUrl)) {
-        this.showError('链接格式错误')
-        return
-      }
-
-      // 5. 保存目标链接并跳转到 webview
-      this.setData({
-        targetUrl: targetUrl
-      })
-
-      // 6. 跳转到 webview 页面
-      wx.navigateTo({
-        url: `/pages/webview/webview?t=${encodeURIComponent(targetUrl)}`,
-        fail: (err) => {
-          console.error('跳转失败:', err)
-          this.showError('页面跳转失败')
+    wx.getClipboardData({
+      success: (res) => {
+        const text = res.data.trim()
+        if (this.isValidUrl(text)) {
+          this.previewArticle(text)
+        } else {
+          this.setData({ state: 'empty' })
         }
-      })
-
-    } catch (err) {
-      console.error('处理参数失败:', err)
-      this.showError('参数解析失败')
-    }
+      },
+      fail: () => {
+        this.setData({ state: 'empty' })
+      }
+    })
   },
 
   /**
    * 校验 URL 格式
    */
   isValidUrl(url) {
-    if (!url || typeof url !== 'string') {
-      return false
-    }
+    if (!url || typeof url !== 'string') return false
     return url.startsWith('http://') || url.startsWith('https://')
   },
 
   /**
-   * 显示错误信息
+   * 预览文章
    */
-  showError(message) {
-    this.setData({
-      loading: false,
-      error: true,
-      errorMessage: message
+  previewArticle(url) {
+    this.setData({ state: 'loading' })
+
+    api.previewArticle(url)
+      .then((res) => {
+        if (res.status_code === 0 && res.data) {
+          this.setData({
+            state: res.data.exists ? 'exists' : 'preview',
+            articleUrl: res.data.article_url,
+            articleTitle: res.data.article_title
+          })
+        } else if (res.status_code === 1001) {
+          // URL 已存在
+          this.setData({
+            state: 'exists',
+            articleUrl: url,
+            articleTitle: res.data?.article_title || ''
+          })
+        } else {
+          this.setData({
+            state: 'error',
+            errorMessage: res.status_msg || '获取文章信息失败'
+          })
+        }
+      })
+      .catch((err) => {
+        this.setData({
+          state: 'error',
+          errorMessage: err.message || '网络请求失败'
+        })
+      })
+  },
+
+  /**
+   * 粘贴按钮点击
+   */
+  onPaste() {
+    wx.getClipboardData({
+      success: (res) => {
+        const text = res.data.trim()
+        if (this.isValidUrl(text)) {
+          this.previewArticle(text)
+        } else {
+          wx.showToast({
+            title: '剪贴板不是有效链接',
+            icon: 'none'
+          })
+        }
+      },
+      fail: () => {
+        wx.showToast({
+          title: '读取剪贴板失败',
+          icon: 'none'
+        })
+      }
     })
   },
 
   /**
-   * 重试按钮点击
+   * 添加按钮点击
    */
-  onRetry() {
-    if (this.data.targetUrl) {
-      wx.navigateTo({
-        url: `/pages/webview/webview?t=${encodeURIComponent(this.data.targetUrl)}`
+  onAdd() {
+    const { articleUrl } = this.data
+
+    wx.showLoading({ title: '添加中...' })
+
+    api.insertArticle(articleUrl)
+      .then((res) => {
+        wx.hideLoading()
+
+        if (res.status_code === 0) {
+          this.setData({
+            state: 'result',
+            result: res.data
+          })
+        } else {
+          wx.showToast({
+            title: res.status_msg || '添加失败',
+            icon: 'none'
+          })
+        }
       })
-    }
+      .catch((err) => {
+        wx.hideLoading()
+        wx.showToast({
+          title: err.message || '网络请求失败',
+          icon: 'none'
+        })
+      })
+  },
+
+  /**
+   * 继续添加 / 粘贴新链接
+   */
+  onContinue() {
+    this.autoReadClipboard()
   }
 })
