@@ -2,7 +2,8 @@ const api = require('../../utils/api')
 
 Page({
   data: {
-    state: 'loading',      // loading | preview | empty | exists | result | error
+    state: 'input',        // input | loading | preview | exists | result | error
+    inputUrl: '',          // 用户输入的 URL
     articleUrl: '',
     articleTitle: '',
     result: null,
@@ -10,32 +11,72 @@ Page({
   },
 
   onLoad() {
-    // 页面加载时不处理，等 onShow
-  },
-
-  onShow() {
-    this.autoReadClipboard()
+    // 页面加载时不处理
   },
 
   /**
-   * 自动读取剪贴板
+   * 输入框内容变化
    */
-  autoReadClipboard() {
-    this.setData({ state: 'loading' })
+  onInputChange(e) {
+    this.setData({
+      inputUrl: e.detail.value.trim()
+    })
+  },
 
+  /**
+   * 从剪贴板粘贴
+   */
+  onPaste() {
     wx.getClipboardData({
       success: (res) => {
-        const text = res.data.trim()
-        if (this.isValidUrl(text)) {
-          this.previewArticle(text)
+        let text = res.data.trim()
+        // 尝试从文本中提取 URL
+        const url = this.extractUrl(text)
+        if (url) {
+          this.setData({
+            inputUrl: url
+          })
+          // 自动预览
+          this.previewArticle(url)
         } else {
-          this.setData({ state: 'empty' })
+          // 将剪贴板内容填入输入框，让用户手动处理
+          this.setData({
+            inputUrl: text
+          })
+          wx.showToast({
+            title: '请检查链接格式',
+            icon: 'none'
+          })
         }
       },
       fail: () => {
-        this.setData({ state: 'empty' })
+        wx.showToast({
+          title: '读取剪贴板失败',
+          icon: 'none'
+        })
       }
     })
+  },
+
+  /**
+   * 从文本中提取 URL
+   */
+  extractUrl(text) {
+    if (!text || typeof text !== 'string') return null
+
+    // 直接是 URL
+    if (this.isValidUrl(text)) {
+      return text
+    }
+
+    // 尝试从文本中匹配 URL
+    const urlPattern = /(https?:\/\/[^\s<>"{}|\\^`\[\]]+)/gi
+    const match = text.match(urlPattern)
+    if (match && match.length > 0) {
+      return match[0]
+    }
+
+    return null
   },
 
   /**
@@ -44,6 +85,31 @@ Page({
   isValidUrl(url) {
     if (!url || typeof url !== 'string') return false
     return url.startsWith('http://') || url.startsWith('https://')
+  },
+
+  /**
+   * 获取标题按钮点击
+   */
+  onFetchTitle() {
+    const { inputUrl } = this.data
+
+    if (!inputUrl) {
+      wx.showToast({
+        title: '请输入文章链接',
+        icon: 'none'
+      })
+      return
+    }
+
+    if (!this.isValidUrl(inputUrl)) {
+      wx.showToast({
+        title: '请输入有效的链接',
+        icon: 'none'
+      })
+      return
+    }
+
+    this.previewArticle(inputUrl)
   },
 
   /**
@@ -58,14 +124,16 @@ Page({
           this.setData({
             state: res.data.exists ? 'exists' : 'preview',
             articleUrl: res.data.article_url,
-            articleTitle: res.data.article_title
+            articleTitle: res.data.article_title,
+            inputUrl: res.data.article_url
           })
         } else if (res.status_code === 1001) {
           // URL 已存在
           this.setData({
             state: 'exists',
             articleUrl: url,
-            articleTitle: res.data?.article_title || ''
+            articleTitle: res.data?.article_title || '',
+            inputUrl: url
           })
         } else {
           this.setData({
@@ -80,31 +148,6 @@ Page({
           errorMessage: err.message || '网络请求失败'
         })
       })
-  },
-
-  /**
-   * 粘贴按钮点击
-   */
-  onPaste() {
-    wx.getClipboardData({
-      success: (res) => {
-        const text = res.data.trim()
-        if (this.isValidUrl(text)) {
-          this.previewArticle(text)
-        } else {
-          wx.showToast({
-            title: '剪贴板不是有效链接',
-            icon: 'none'
-          })
-        }
-      },
-      fail: () => {
-        wx.showToast({
-          title: '读取剪贴板失败',
-          icon: 'none'
-        })
-      }
-    })
   },
 
   /**
@@ -141,9 +184,25 @@ Page({
   },
 
   /**
-   * 继续添加 / 粘贴新链接
+   * 继续添加 / 重新输入
    */
   onContinue() {
-    this.autoReadClipboard()
+    this.setData({
+      state: 'input',
+      inputUrl: '',
+      articleUrl: '',
+      articleTitle: '',
+      result: null,
+      errorMessage: ''
+    })
+  },
+
+  /**
+   * 重新输入（从预览/存在状态返回）
+   */
+  onReInput() {
+    this.setData({
+      state: 'input'
+    })
   }
 })

@@ -50,21 +50,40 @@
   border: none;
 }
 
-/* 空状态 */
-.empty-icon {
-  font-size: 120rpx;
-  margin-bottom: 30rpx;
+/* 输入卡片 */
+.input-card {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-sizing: border-box;
+  margin-bottom: 40rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
 }
 
-.empty-text {
-  font-size: 32rpx;
+.input-label {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.url-input {
+  width: 100%;
+  min-height: 120rpx;
+  font-size: 28rpx;
   color: #333;
-  margin-bottom: 16rpx;
+  line-height: 1.6;
+  padding: 20rpx;
+  box-sizing: border-box;
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+  border: 2rpx solid #e0e0e0;
 }
 
-.empty-hint {
-  font-size: 26rpx;
-  color: #999;
+.url-input:focus {
+  border-color: #07c160;
+  background-color: #fff;
 }
 
 /* 文章卡片 */
@@ -95,11 +114,19 @@
   overflow: hidden;
 }
 
-.article-url {
-  display: block;
-  font-size: 22rpx;
-  color: #999;
+/* URL 显示卡片 */
+.url-display-card {
+  background-color: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-top: 10rpx;
+}
+
+.url-display-text {
+  font-size: 24rpx;
+  color: #666;
   word-break: break-all;
+  line-height: 1.5;
 }
 
 /* 警告文字 */

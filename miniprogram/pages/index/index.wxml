@@ -1,39 +1,52 @@
 <view class="container">
+  <!-- 输入状态 -->
+  <view wx:if="{{state === 'input'}}" class="state-container">
+    <button class="paste-btn" bindtap="onPaste">粘贴</button>
+    <view class="input-card">
+      <text class="input-label">文章链接</text>
+      <textarea
+        class="url-input"
+        placeholder="请粘贴或输入公众号文章链接"
+        value="{{inputUrl}}"
+        bindinput="onInputChange"
+        auto-height
+        maxlength="2000"
+      ></textarea>
+    </view>
+    <button class="add-btn" bindtap="onFetchTitle">获取标题</button>
+  </view>
+
   <!-- 加载状态 -->
   <view wx:if="{{state === 'loading'}}" class="state-container">
     <view class="loading-spinner"></view>
-    <text class="loading-text">读取剪贴板 + 获取标题...</text>
-  </view>
-
-  <!-- 空状态 -->
-  <view wx:if="{{state === 'empty'}}" class="state-container">
-    <button class="paste-btn" bindtap="onPaste">粘贴</button>
-    <view class="empty-icon">📋</view>
-    <text class="empty-text">未检测到文章链接</text>
-    <text class="empty-hint">请复制公众号文章链接后点击粘贴</text>
+    <text class="loading-text">获取文章信息...</text>
   </view>
 
   <!-- 预览状态 -->
   <view wx:if="{{state === 'preview'}}" class="state-container">
-    <button class="paste-btn" bindtap="onPaste">粘贴</button>
+    <button class="paste-btn" bindtap="onReInput">重输</button>
     <view class="article-card">
       <text class="article-icon">📄</text>
       <text class="article-title">{{articleTitle}}</text>
-      <text class="article-url">{{articleUrl}}</text>
+      <view class="url-display-card">
+        <text class="url-display-text">{{articleUrl}}</text>
+      </view>
     </view>
     <button class="add-btn" bindtap="onAdd">添加</button>
   </view>
 
   <!-- 已存在状态 -->
   <view wx:if="{{state === 'exists'}}" class="state-container">
-    <button class="paste-btn" bindtap="onPaste">粘贴</button>
+    <button class="paste-btn" bindtap="onReInput">重输</button>
     <view class="warning-text">⚠️ 该文章已添加过</view>
     <view class="article-card">
       <text class="article-icon">📄</text>
       <text class="article-title">{{articleTitle}}</text>
-      <text class="article-url">{{articleUrl}}</text>
+      <view class="url-display-card">
+        <text class="url-display-text">{{articleUrl}}</text>
+      </view>
     </view>
-    <button class="add-btn" bindtap="onContinue">粘贴新链接</button>
+    <button class="add-btn" bindtap="onReInput">输入新链接</button>
   </view>
 
   <!-- 结果状态 -->
@@ -46,7 +59,7 @@
 
   <!-- 错误状态 -->
   <view wx:if="{{state === 'error'}}" class="state-container">
-    <button class="paste-btn" bindtap="onPaste">粘贴</button>
+    <button class="paste-btn" bindtap="onContinue">重试</button>
     <view class="error-icon">❌</view>
     <text class="error-text">{{errorMessage}}</text>
   </view>
