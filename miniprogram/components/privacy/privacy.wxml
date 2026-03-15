@@ -1,0 +1,12 @@
+<view class="privacy-mask" wx:if="{{showPrivacy}}">
+  <view class="privacy-popup">
+    <view class="privacy-title">用户隐私保护提示</view>
+    <view class="privacy-desc">
+      感谢您使用文章收藏小程序。我们需要获取您的剪贴板权限，以便快速粘贴文章链接。
+    </view>
+    <view class="privacy-btns">
+      <button class="btn-disagree" bindtap="handleDisagree">拒绝</button>
+      <button class="btn-agree" id="agree-btn" open-type="agreePrivacyAuthorization" bindtap="handleAgree">同意</button>
+    </view>
+  </view>
+</view>

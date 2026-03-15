@@ -1,4 +1,7 @@
 <view class="container">
+  <!-- 隐私授权弹窗 -->
+  <privacy />
+
   <!-- 输入状态 -->
   <view wx:if="{{state === 'input'}}" class="state-container">
     <view class="input-card">

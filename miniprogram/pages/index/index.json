@@ -1,4 +1,6 @@
 {
-  "navigationBarTitleText": "链接跳转",
-  "usingComponents": {}
+  "navigationBarTitleText": "文章收藏",
+  "usingComponents": {
+    "privacy": "/components/privacy/privacy"
+  }
 }
