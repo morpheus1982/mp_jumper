@@ -2,10 +2,13 @@
   <!-- 输入状态 -->
   <view wx:if="{{state === 'input'}}" class="state-container">
     <view class="input-card">
-      <text class="input-label">文章链接</text>
+      <view class="input-header">
+        <text class="input-label">文章链接</text>
+        <button class="paste-btn-small" bindtap="onPasteClick">粘贴</button>
+      </view>
       <textarea
         class="url-input"
-        placeholder="长按此处粘贴链接"
+        placeholder="点击粘贴按钮，或长按此处粘贴"
         value="{{inputUrl}}"
         bindinput="onInputChange"
         auto-height

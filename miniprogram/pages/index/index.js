@@ -30,38 +30,48 @@ Page({
   },
 
   /**
-   * 从剪贴板粘贴
+   * 点击粘贴按钮 - 聚焦输入框，提示用户粘贴
    */
-  onPaste() {
+  onPasteClick() {
+    // 先尝试 API 读取（纯文本格式可以读取）
     wx.getClipboardData({
       success: (res) => {
         let text = res.data.trim()
-        // 尝试从文本中提取 URL
         const url = this.extractUrl(text)
         if (url) {
-          this.setData({
-            inputUrl: url
-          })
-          // 自动预览
+          this.setData({ inputUrl: url })
           this.previewArticle(url)
-        } else {
-          // 将剪贴板内容填入输入框，让用户手动处理
-          this.setData({
-            inputUrl: text
-          })
-          wx.showToast({
-            title: '请检查链接格式',
-            icon: 'none'
-          })
+          return
         }
+        // 有内容但不是 URL，填入输入框
+        if (text) {
+          this.setData({ inputUrl: text })
+          wx.showToast({ title: '请检查链接格式', icon: 'none' })
+          return
+        }
+        // 空内容，聚焦输入框让用户手动粘贴
+        this.focusInput()
       },
       fail: () => {
-        wx.showToast({
-          title: '读取剪贴板失败',
-          icon: 'none'
-        })
+        // API 失败（微信特殊格式），聚焦输入框让用户长按粘贴
+        this.focusInput()
       }
     })
+  },
+
+  /**
+   * 聚焦输入框并提示用户
+   */
+  focusInput() {
+    this.setData({ inputFocus: false })
+    setTimeout(() => {
+      this.setData({ inputFocus: true })
+      wx.showToast({
+        title: '请长按输入框粘贴',
+        icon: 'none',
+        duration: 2000
+      })
+    }, 100)
   },
 
   /**
