@@ -1,17 +1,25 @@
 <view class="container">
   <!-- 输入状态 -->
   <view wx:if="{{state === 'input'}}" class="state-container">
-    <button class="paste-btn" bindtap="onPaste">粘贴</button>
     <view class="input-card">
-      <text class="input-label">文章链接</text>
+      <view class="input-header">
+        <text class="input-label">文章链接</text>
+        <button class="paste-btn-small" bindtap="onPaste">粘贴</button>
+      </view>
       <textarea
+        id="urlInput"
         class="url-input"
-        placeholder="请粘贴或输入公众号文章链接"
+        placeholder="长按此处粘贴，或手动输入链接"
         value="{{inputUrl}}"
         bindinput="onInputChange"
+        bindfocus="onInputFocus"
         auto-height
         maxlength="2000"
+        focus="{{inputFocus}}"
+        show-confirm-bar="{{false}}"
+        adjust-position="{{true}}"
       ></textarea>
+      <text class="input-hint">提示：长按输入框选择"粘贴"</text>
     </view>
     <button class="add-btn" bindtap="onFetchTitle">获取标题</button>
   </view>

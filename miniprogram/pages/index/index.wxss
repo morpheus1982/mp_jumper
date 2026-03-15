@@ -61,11 +61,36 @@
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
 }
 
+.input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
 .input-label {
-  display: block;
   font-size: 28rpx;
   color: #666;
-  margin-bottom: 20rpx;
+}
+
+.paste-btn-small {
+  background-color: #07c160;
+  color: #fff;
+  font-size: 24rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 24rpx;
+  line-height: 1.4;
+}
+
+.paste-btn-small::after {
+  border: none;
+}
+
+.input-hint {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 16rpx;
 }
 
 .url-input {

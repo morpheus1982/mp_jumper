@@ -4,6 +4,7 @@ Page({
   data: {
     state: 'input',        // input | loading | preview | exists | result | error
     inputUrl: '',          // 用户输入的 URL
+    inputFocus: false,     // 输入框焦点
     articleUrl: '',
     articleTitle: '',
     result: null,
@@ -12,6 +13,11 @@ Page({
 
   onLoad() {
     // 页面加载时不处理
+  },
+
+  onShow() {
+    // 每次显示页面时，聚焦输入框方便用户粘贴
+    this.setData({ inputFocus: true })
   },
 
   /**
