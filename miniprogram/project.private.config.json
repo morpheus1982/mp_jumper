@@ -1,7 +1,19 @@
 {
   "libVersion": "3.14.3",
-  "projectname": "miniprogram",
-  "condition": {},
+  "projectname": "云链快传",
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/index/index",
+          "pathName": "pages/index/index",
+          "query": "t=https://pan.quark.cn/s/01903e64bcc6",
+          "scene": null,
+          "launchMode": "default"
+        }
+      ]
+    }
+  },
   "setting": {
     "urlCheck": true,
     "coverView": true,

@@ -2,7 +2,7 @@
   "miniprogramRoot": "./",
   "projectname": "mp-jumper",
   "description": "链接跳转小程序",
-  "appid": "wxd845ba46f9cae595",
+  "appid": "wx23a82efdbe754c96",
   "setting": {
     "urlCheck": true,
     "es6": true,
