@@ -40,7 +40,7 @@ www.512028.xyz {
     # 反向代理 weshare 接口
     handle_path /weshareh/* {
         uri strip_prefix /weshareh
-        reverse_proxy 127.0.0.1:60082
+        reverse_proxy 10.0.0.11:60082
     }
 
     # 反向代理夸克网盘
