@@ -11,13 +11,17 @@ Page({
     errorMessage: ''
   },
 
+  // 隐私授权相关
+  privacyResolve: null,
+  needPrivacy: false,
+
   onLoad() {
     // 页面加载时不处理
   },
 
   onShow() {
-    // 每次显示页面时，聚焦输入框方便用户粘贴
-    this.setData({ inputFocus: true })
+    // 每次显示页面时自动粘贴
+    this._tryReadClipboard()
   },
 
   /**
@@ -30,25 +34,81 @@ Page({
   },
 
   /**
-   * 点击粘贴按钮
+   * 点击粘贴按钮 - 刷新剪贴板内容
    */
   onPasteClick() {
+    this._tryReadClipboard()
+  },
+
+  /**
+   * 尝试读取剪贴板（检查隐私授权）
+   */
+  _tryReadClipboard() {
+    if (wx.getPrivacySetting) {
+      wx.getPrivacySetting({
+        success: (res) => {
+          if (res.needAuthorization) {
+            // 需要授权，显示隐私弹窗
+            this.setData({ showPrivacy: true })
+          } else {
+            // 已授权，直接读取
+            this._readClipboard()
+          }
+        },
+        fail: () => {
+          this._readClipboard()
+        }
+      })
+    } else {
+      this._readClipboard()
+    }
+  },
+
+  /**
+   * 隐私协议同意
+   */
+  onPrivacyAgree() {
+    this.setData({ showPrivacy: false })
+    this._readClipboard()
+  },
+
+  /**
+   * 隐私协议拒绝
+   */
+  onPrivacyDisagree() {
+    this.setData({ showPrivacy: false })
+  },
+
+  /**
+   * 读取剪贴板内容
+   */
+  _readClipboard() {
     wx.getClipboardData({
       success: (res) => {
-        console.log('剪贴板内容:', res.data)
         const text = res.data.trim()
         if (text) {
-          // 直接填入输入框
           this.setData({ inputUrl: text })
-        } else {
-          wx.showToast({ title: '剪贴板为空', icon: 'none' })
+          // 成功读取后自动获取标题
+          this._autoFetchTitle(text)
         }
       },
       fail: (err) => {
         console.error('读取剪贴板失败:', err)
-        wx.showToast({ title: '读取剪贴板失败', icon: 'none' })
       }
     })
+  },
+
+  /**
+   * 自动获取标题（如果内容是有效URL）
+   */
+  _autoFetchTitle(text) {
+    // 检查是否是有效URL
+    if (this.isValidUrl(text)) {
+      // 延迟一点执行，让用户看到URL已填入
+      setTimeout(() => {
+        this.previewArticle(text)
+      }, 300)
+    }
   },
 
   /**
