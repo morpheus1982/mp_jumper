@@ -1,35 +1,60 @@
 {
-        # 全局禁用自动 HTTPS（仅对需要的地方）
-        auto_https disable_redirects
+    auto_https disable_redirects
 }
 
-# HTTP 测试端口
-:60080 {
+:80 {
+    # 反向代理夸克网盘
+    handle_path /quark/* {
+        uri strip_prefix /quark
+        reverse_proxy https://pan.quark.cn {
+            header_up Host pan.quark.cn
+            header_up Referer https://pan.quark.cn/
+            header_up User-Agent {http.request.header.User-Agent}
+        }
+    }
+
+    # 静态文件
+    handle {
         root * /opt/docker/mp_jumper/html
         file_server browse
+    }
 
-        log {
-                output stdout
-                format console
-        }
+    log {
+        output stdout
+        format console
+    }
 }
 
-# HTTPS 生产端口 - 自动 SSL (阿里云 DNS-01 验证)
 www.512028.xyz {
-        root * /opt/docker/mp_jumper/html
-        file_server browse
-        encode gzip
+    root * /opt/docker/mp_jumper/html
+    file_server browse
+    encode gzip
 
-        # 自动 SSL 证书 - 阿里云 DNS 验证
-        tls {
-                dns alidns {
-                        access_key_id {$ALICLOUD_ACCESS_KEY}
-                        access_key_secret {$ALICLOUD_SECRET_KEY}
-                }
+    tls {
+        dns alidns {
+            access_key_id {$ALICLOUD_ACCESS_KEY}
+            access_key_secret {$ALICLOUD_SECRET_KEY}
         }
+    }
 
-        log {
-                output stdout
-                format console
+    # 反向代理 weshare 接口
+    handle_path /weshareh/* {
+        uri strip_prefix /weshareh
+        reverse_proxy 127.0.0.1:60082
+    }
+
+    # 反向代理夸克网盘
+    handle_path /quark/* {
+        uri strip_prefix /quark
+        reverse_proxy https://pan.quark.cn {
+            header_up Host pan.quark.cn
+            header_up Referer https://pan.quark.cn/
+            header_up User-Agent {http.request.header.User-Agent}
         }
+    }
+
+    log {
+        output stdout
+        format console
+    }
 }
